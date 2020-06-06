@@ -19,6 +19,6 @@ app.add_middleware(
 def home():
     return {"message":"Hello, Man!"}
 
-@app.post("api/file/")
+@app.put("api/file/")
 async def create_file(file: bytes = File(...)):
     return {"file_size": len(file)}
