@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-from fastapi import Request, APIRouter, File, UploadFile
+from fastapi import Request, APIRouter, File, UploadFile, Form
 from starlette.templating import Jinja2Templates
 
 norm_api = APIRouter()
@@ -21,13 +21,16 @@ def home(request: Request):
 
 @norm_api.post("api/file/")
 async def create_file(file: bytes = File(...)):
+    print('api/file')
     return {"file_size": len(file)}
 
 
 @norm_api.post("/api/file/upload/")
 async def create_upload_file(file: UploadFile = File(...)):
-    save_upload_file(file, Path(file.filename))
-    process()
+    print('/api/file/upload/')
+
+    #save_upload_file(file, Path(file.filename))
+    #process()
     return {"filename": file.filename}
 
 
