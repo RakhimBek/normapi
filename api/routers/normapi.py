@@ -94,4 +94,4 @@ def process() -> None:
 
     new_file['new_str'] = bad['index'].astype(str) + ", " + bad['area'] + ", " + bad['city'] + ", " + bad['street'] + \
                           ", " + bad['hous'] + ", " + bad['favella']
-    new_file.to_csv('proba.csv')
+    new_file.to_csv('result_cifrovizatori.csv')
