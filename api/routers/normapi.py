@@ -17,7 +17,7 @@ norm_api = APIRouter()
 def home(request: Request):
     print('home request')
     templates = Jinja2Templates(directory="templates")
-    return templates.TemplateResponse("index.css", {"request": request, "id": "Hi!"})
+    return templates.TemplateResponse("index.html", {"request": request, "id": "Hi!"})
 
 @norm_api.post("api/file/")
 async def create_file(file: bytes = File(...)):
