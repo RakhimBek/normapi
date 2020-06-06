@@ -25,7 +25,7 @@ async def create_file(file: bytes = File(...)):
 @norm_api.post("/api/file/upload/")
 async def create_upload_file(file: UploadFile = File(...)):
     save_upload_file(file, Path(file.filename))
-    process(Path(file.filename))
+    process()
     return {"filename": file.filename}
 
 
@@ -37,7 +37,7 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
         upload_file.file.close()
 
 
-def process(destination: Path) -> None:
+def process() -> None:
     street = r'(ул\.?\s\w+(\s\w+)?|улица\s\w+(\s\w+)?|\w+(\s\w+)?\sулица|\w+(\s\w+)?\sул\.?)'
     area = r'(обл\.?\s\w+|область\s\w+|\w+\sобласть|\w+\sобл\.?)'
     bad = pd.read_csv('bad.csv', sep=';')
@@ -57,6 +57,10 @@ def process(destination: Path) -> None:
     bad['address'] = bad['address'].str.replace('XII', '12')
     bad['address'] = bad['address'].str.replace('XIII', '13')
 
+    bad['index'] = bad['address'].str.extract('([0-9][0-9][0-9]+)')
+    bad['index'] = bad['index'].replace(np.nan, '', regex=True)
+    bad['address'] = bad['address'].str.replace('([0-9][0-9][0-9]+)', '')
+
     bad['city'] = bad['address'].str.extract(r'(г\.?\ ?[А-Я][а-яА-Я-]+)')
     bad['city'] = bad['city'].replace(np.nan, '', regex=True)
     bad['address'] = bad['address'].str.replace(r'(г\.?\ ?[а-яА-Я-]+)', '')
@@ -73,8 +77,21 @@ def process(destination: Path) -> None:
     bad['lane'] = bad['lane'].replace(np.nan, '', regex=True)
     bad['address'] = bad['address'].str.replace(r'(пер\.?[еулок]*\ ?[^ ,]+)', '')
 
+    k = list()
+    for i in bad['address']:
+        match = re.search(street, i)
+        if match:
+            k.append(match[0])
+            i.replace(street, '')
+        else:
+            k.append('')
+
+    bad['street'] = k
+
     bad['area'] = bad['address'].str.extract(area)
     bad['area'] = bad['area'].replace(np.nan, '', regex=True)
     bad['address'] = bad['address'].str.replace(area, '')
 
+    new_file['new_str'] = bad['index'].astype(str) + ", " + bad['area'] + ", " + bad['city'] + ", " + bad['street'] + \
+                          ", " + bad['hous'] + ", " + bad['favella']
     new_file.to_csv('proba.csv')
