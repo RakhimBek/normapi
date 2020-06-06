@@ -9,6 +9,7 @@ import numpy as np
 
 from fastapi import Request, APIRouter, File, UploadFile, Form
 from starlette.templating import Jinja2Templates
+from starlette.responses import FileResponse
 
 norm_api = APIRouter()
 
@@ -19,20 +20,19 @@ def home(request: Request):
     templates = Jinja2Templates(directory="templates")
     return templates.TemplateResponse("index.html", {"request": request, "id": "Hi!"})
 
-@norm_api.post("api/file/")
-async def create_file(file: bytes = File(...)):
-    print('api/file')
-    return {"file_size": len(file)}
-
-
 @norm_api.post("/api/file/upload/")
 async def create_upload_file(file: UploadFile = File(...)):
     print('/api/file/upload/')
 
-    #save_upload_file(file, Path(file.filename))
-    #process()
-    return {"filename": file.filename}
+    save_upload_file(file, Path(file.filename))
+    res = 'result_cifrovizatori.csv'
+    process(file.filename, res)
+    return {"filename": res}
 
+
+@norm_api.get("/api/file/result_cifrovizatori")
+async def get_file():
+    return FileResponse("result_cifrovizatori.csv")
 
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
     try:
@@ -42,10 +42,10 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
         upload_file.file.close()
 
 
-def process() -> None:
+def process(filename, result_filename) -> None:
     street = r'(ул\.?\s\w+(\s\w+)?|улица\s\w+(\s\w+)?|\w+(\s\w+)?\sулица|\w+(\s\w+)?\sул\.?)'
     area = r'(обл\.?\s\w+|область\s\w+|\w+\sобласть|\w+\sобл\.?)'
-    bad = pd.read_csv('bad.csv', sep=';')
+    bad = pd.read_csv(filename, sep=';')
     new_file = pd.DataFrame()
     new_file['address'] = bad['address']
     bad['address'] = bad['address'].str.replace('I', '1')
@@ -99,4 +99,4 @@ def process() -> None:
 
     new_file['new_str'] = bad['index'].astype(str) + ", " + bad['area'] + ", " + bad['city'] + ", " + bad['street'] + \
                           ", " + bad['hous'] + ", " + bad['favella']
-    new_file.to_csv('result_cifrovizatori.csv')
+    new_file.to_csv(result_filename)

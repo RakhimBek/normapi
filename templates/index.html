@@ -139,6 +139,9 @@
                         html += val + '<br>';
                     })
                     $('.ajax-respond').html(html);
+
+                    window.location = '/api/file/result_cifrovizatori'
+
                 } else {
                     console.log('ОШИБКИ ОТВЕТА сервера: ' + respond.error);
                 }
