@@ -33,7 +33,7 @@ $ pip install -r requirements.txt
 
 ### Run server
 ```
-$ python app/main.py
+$ python normapi/main.py
 ```
 
 ### API
