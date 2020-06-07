@@ -1,30 +1,32 @@
-"""Backup Cloud Storage module routings
+"""Normalize module routings
 
 """
 import re
 import shutil
-from pathlib import Path
-import pandas as pd
-import numpy as np
-
-from fastapi import Request, APIRouter, File, UploadFile, Form
-from pydantic import BaseModel
-from starlette.templating import Jinja2Templates
-from starlette.responses import FileResponse
 import time
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from fastapi import Request, APIRouter, File, UploadFile
+from pydantic import BaseModel
+from starlette.responses import FileResponse
+from starlette.templating import Jinja2Templates
 
 norm_api = APIRouter()
 
 
-@norm_api.get("/")
+@norm_api.get('/')
 def home(request: Request):
     print('home request')
-    templates = Jinja2Templates(directory="templates")
-    return templates.TemplateResponse("index.html", {"request": request, "id": "Hi!"})
+    templates = Jinja2Templates(directory='templates')
+    return templates.TemplateResponse('index.html', {'request': request, 'id': 'Hi!'})
 
 
+@norm_api.post('/api/file/upload/')
 class RequestBody(BaseModel):
     string: str
+
 
 @norm_api.post("/api/normalize/")
 def normalize(body: RequestBody):
@@ -37,6 +39,15 @@ def normalize(body: RequestBody):
 
 @norm_api.post("/api/file/upload/")
 async def create_upload_file(file: UploadFile = File(...)):
+    """Loads the passed file and performs processing.
+
+    Args:
+        file: A csv file that has an 'address' field that contains data that needs to be preprocessed.
+
+    Returns:
+
+
+    """
     start_time = time.time()
     print('/api/file/upload/')
 
@@ -47,17 +58,17 @@ async def create_upload_file(file: UploadFile = File(...)):
     e = int(time.time() - start_time)
     print('{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60))
     print(e)
-    return {"filename": res}
+    return {'filename': res}
 
 
-@norm_api.get("/api/file/result_cifrovizatori")
+@norm_api.get('/api/file/result_cifrovizatori')
 async def get_file():
-    return FileResponse("result_cifrovizatori.csv")
+    return FileResponse('result_cifrovizatori.csv')
 
 
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
     try:
-        with destination.open("wb") as buffer:
+        with destination.open('wb') as buffer:
             shutil.copyfileobj(upload_file.file, buffer)
     finally:
         upload_file.file.close()
