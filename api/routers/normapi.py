@@ -30,6 +30,15 @@ class RequestBody(BaseModel):
 
 @norm_api.post("/api/normalize/")
 def normalize(body: RequestBody):
+    """Normalizes the string set by the user.
+
+    Args:
+        body: User string.
+
+    Returns:
+        Processed user string.
+
+    """
     bad = pd.DataFrame([['1', body.string]], columns=['id', 'address'])
     result = process_dataframe(bad)['new_str'][0]
     return {
@@ -45,7 +54,7 @@ async def create_upload_file(file: UploadFile = File(...)):
         file: A csv file that has an 'address' field that contains data that needs to be preprocessed.
 
     Returns:
-
+        A new file with the original strings and the result of processing.
 
     """
     start_time = time.time()
@@ -63,6 +72,12 @@ async def create_upload_file(file: UploadFile = File(...)):
 
 @norm_api.get('/api/file/result_cifrovizatori')
 async def get_file():
+    """Returns a new file
+
+    Returns:
+        Returns a new file
+
+    """
     return FileResponse('result_cifrovizatori.csv')
 
 
