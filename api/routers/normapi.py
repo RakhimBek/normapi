@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 
 from fastapi import Request, APIRouter, File, UploadFile, Form
+from pydantic import BaseModel
 from starlette.templating import Jinja2Templates
 from starlette.responses import FileResponse
 import time
@@ -20,6 +21,18 @@ def home(request: Request):
     print('home request')
     templates = Jinja2Templates(directory="templates")
     return templates.TemplateResponse("index.html", {"request": request, "id": "Hi!"})
+
+
+class RequestBody(BaseModel):
+    string: str
+
+@norm_api.post("/api/normalize/")
+def normalize(body: RequestBody):
+    bad = pd.DataFrame([['1', body.string]], columns=['id', 'address'])
+    result = process_dataframe(bad)['new_str'][0]
+    return {
+        "string": result
+    }
 
 
 @norm_api.post("/api/file/upload/")
@@ -51,9 +64,14 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
 
 
 def process(filename, result_filename) -> None:
+    bad = pd.read_csv(filename, sep=';')
+    process_dataframe(bad).to_csv(result_filename, sep=';')
+
+
+def process_dataframe(bad) -> pd.DataFrame:
     street = r'(ул\.?\s\w+(\s\w+)?|улица\s\w+(\s\w+)?|\w+(\s\w+)?\sулица|\w+(\s\w+)?\sул\.?)'
     area = r'(обл\.?\s\w+|область\s\w+|\w+\sобласть|\w+\sобл\.?)'
-    bad = pd.read_csv(filename, sep=';')
+
     new_file = pd.DataFrame()
     new_file['id'] = bad['id']
     new_file['address'] = bad['address']
@@ -108,4 +126,4 @@ def process(filename, result_filename) -> None:
 
     new_file['new_str'] = bad['index'].astype(str) + ", " + bad['area'] + ", " + bad['city'] + ", " + bad['street'] + \
                           ", " + bad['hous'] + ", " + bad['favella']
-    new_file.to_csv(result_filename, sep=';')
+    return new_file
