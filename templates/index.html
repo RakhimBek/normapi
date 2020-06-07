@@ -186,6 +186,20 @@
         event.stopPropagation(); // Остановка происходящего
         event.preventDefault();  // Полная остановка происходящего
 
+        fetch('/api/normalize', {
+            "method": "post",
+            "Content-Type": "application/json",
+            "body": JSON.stringify({
+                "string": adress
+            })
+        })
+        .then(response => response.json())
+        .then(data => data.string)
+        .then(val => $('.adress-field').val(val))
+        .catch((response) => {
+            // something wrong has happen
+            console.log(response);
+        });
 
         $.ajax({
             url: 'https://geocode-maps.yandex.ru/1.x/',
