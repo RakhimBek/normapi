@@ -10,6 +10,7 @@ import numpy as np
 from fastapi import Request, APIRouter, File, UploadFile, Form
 from starlette.templating import Jinja2Templates
 from starlette.responses import FileResponse
+import time
 
 norm_api = APIRouter()
 
@@ -20,15 +21,15 @@ def home(request: Request):
     templates = Jinja2Templates(directory="templates")
     return templates.TemplateResponse("index.html", {"request": request, "id": "Hi!"})
 
+
 @norm_api.post("/api/file/upload/")
 async def create_upload_file(file: UploadFile = File(...)):
+    start_time = time.time()
     print('/api/file/upload/')
 
     save_upload_file(file, Path(file.filename))
     res = 'result_cifrovizatori.csv'
 
-    import time
-    start_time = time.time()
     process(file.filename, res)
     e = int(time.time() - start_time)
     print('{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60))
@@ -39,6 +40,7 @@ async def create_upload_file(file: UploadFile = File(...)):
 @norm_api.get("/api/file/result_cifrovizatori")
 async def get_file():
     return FileResponse("result_cifrovizatori.csv")
+
 
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
     try:
