@@ -99,4 +99,4 @@ def process(filename, result_filename) -> None:
 
     new_file['new_str'] = bad['index'].astype(str) + ", " + bad['area'] + ", " + bad['city'] + ", " + bad['street'] + \
                           ", " + bad['hous'] + ", " + bad['favella']
-    new_file.to_csv(result_filename)
+    new_file.to_csv(result_filename, sep=';')
