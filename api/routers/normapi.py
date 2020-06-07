@@ -26,7 +26,13 @@ async def create_upload_file(file: UploadFile = File(...)):
 
     save_upload_file(file, Path(file.filename))
     res = 'result_cifrovizatori.csv'
+
+    import time
+    start_time = time.time()
     process(file.filename, res)
+    e = int(time.time() - start_time)
+    print('{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60))
+    print(e)
     return {"filename": res}
 
 
@@ -47,6 +53,7 @@ def process(filename, result_filename) -> None:
     area = r'(обл\.?\s\w+|область\s\w+|\w+\sобласть|\w+\sобл\.?)'
     bad = pd.read_csv(filename, sep=';')
     new_file = pd.DataFrame()
+    new_file['id'] = bad['id']
     new_file['address'] = bad['address']
     bad['address'] = bad['address'].str.replace('I', '1')
     bad['address'] = bad['address'].str.replace('II', '2')
