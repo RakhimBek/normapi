@@ -201,66 +201,36 @@
             console.log(response);
         });
 
-        $.ajax({
-            url: 'https://geocode-maps.yandex.ru/1.x/',
-            type: 'GET',
-            data: 'apikey=594c11a0-3529-4668-87a6-b1383dc993c3&format=json&geocode=' + adress,
-            cache: false,
-            dataType: 'json',
-            processData: false, // Не обрабатываем файлы (Don't process the files)
-            contentType: false, // Так jQuery скажет серверу что это строковой запрос
-            success: function (respond, textStatus, jqXHR) {
+        fetch("https://geocode-maps.yandex.ru/1.x/?apikey=594c11a0-3529-4668-87a6-b1383dc993c3&format=json&geocode=" + adress)
+        .then(response => response.json())
+        .then((respond) => {
+            let position = respond.response
+                .GeoObjectCollection.featureMember[0]
+                .GeoObject.Point
+                .pos.split(' ').reverse();
 
-                // Если все ОК
-
-                if (typeof respond.error === 'undefined') {
-                    // Файлы успешно загружены, делаем что нибудь здесь
-
-                    // выведем пути к загруженным файлам в блок '.ajax-respond'
-
-
-                    let position = respond.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos;
-                    console.log(position);
-                    position = position.split(' ').reverse();
-                    console.log(position);
-                    ymaps.ready(init);
-
-                    function init() {
-                        var myMap = new ymaps.Map("map", {
-                                center: position,
-                                zoom: 17.5
-                            }, {
-                                searchControlProvider: 'yandex#search'
-                            }),
-
-                            // Создаем геообъект с типом геометрии "Точка".
-                            myGeoObject = new ymaps.GeoObject({
-                                // Описание геометрии.
-                                geometry: {
-                                    type: "Point",
-                                    coordinates: position
-                                }
-                            }, {
-                                // Опции.
-                                // Иконка метки будет растягиваться под размер ее содержимого.
-                                preset: 'islands#blackStretchyIcon'
-                            });
-
-                        myMap.geoObjects
-                            .add(myGeoObject);
-                    }
-
-                } else {
-                    console.log('ОШИБКИ ОТВЕТА сервера: ' + respond.error);
-                    stopLoadingAnimation()
+            let geoObject = new ymaps.GeoObject({
+                geometry: {
+                    type: "Point",
+                    coordinates: position
                 }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log('ОШИБКИ AJAX запроса: ' + textStatus);
-                stopLoadingAnimation()
-            }
-        });
+            }, {
+                preset: 'islands#blackStretchyIcon'
+            });
 
+            ymaps.ready(() => {
+                new ymaps.Map("map", {
+                    center: position,
+                    zoom: 17.5
+                }, {
+                    searchControlProvider: 'yandex#search'
+                })
+                .geoObjects
+                .add(geoObject);
+            });
+        })
+        .catch(data => console.log(data))
+        .finally(() => stopLoadingAnimation())
     });
 
 
