@@ -143,14 +143,6 @@
 
 <script type="text/javascript">
 
-
-    let adress;
-
-    $('input[type=text]').change(function () {
-        adress = $("input:text").val();
-        console.log(adress);
-    });
-
     $('.check-link').click(function (event) {
         event.stopPropagation(); // Остановка происходящего
         event.preventDefault();  // Полная остановка происходящего
@@ -159,7 +151,7 @@
             "method": "post",
             "Content-Type": "application/json",
             "body": JSON.stringify({
-                "string": adress
+                "string": $("input:text").val()
             })
         })
         .then(response => response.json())
@@ -170,14 +162,12 @@
             console.log(response);
         });
 
+        let adress = $("input:text").val();
         fetch("https://geocode-maps.yandex.ru/1.x/?apikey=594c11a0-3529-4668-87a6-b1383dc993c3&format=json&geocode=" + adress)
         .then(response => response.json())
-        .then((respond) => {
-            let position = respond.response
-                .GeoObjectCollection.featureMember[0]
-                .GeoObject.Point
-                .pos.split(' ').reverse();
-
+        .then(data => data.response.GeoObjectCollection.featureMember[0].GeoObject.Point)
+        .then(point => point.pos.split(' ').reverse())
+        .then(position => {
             let geoObject = new ymaps.GeoObject({
                 geometry: {
                     type: "Point",
@@ -187,6 +177,7 @@
                 preset: 'islands#blackStretchyIcon'
             });
 
+            $("#map").empty();
             ymaps.ready(() => {
                 new ymaps.Map("map", {
                     center: position,
@@ -198,7 +189,7 @@
                 .add(geoObject);
             });
         })
-        .catch(data => console.log(data))
+        .catch(error => console.log(error))
         .finally(() => stopLoadingAnimation())
     });
 
