@@ -111,52 +111,21 @@
         startLoadingAnimation();
 
         // Создадим данные формы и добавим в них данные файлов из files
-        var file_data = $('#file').prop('files')[0];
-        var form_data = new FormData();
+        let file_data = $('#file').prop('files')[0];
+        let form_data = new FormData();
         form_data.append('file', file_data);
 
         // Отправляем запрос
-        $.ajax({
-            url: '/api/file/upload/',
-            type: 'POST',
-            data: form_data,
-            cache: false,
-            dataType: 'text',
-            processData: false,
-            contentType: false,
-            success: function (respond, textStatus, jqXHR) {
-
-                // Если все ОК
-
-                if (typeof respond.error === 'undefined') {
-                    // Файлы успешно загружены, делаем что нибудь здесь
-
-                    // выведем пути к загруженным файлам в блок '.ajax-respond'
-
-                    var files_path = respond.files;
-                    var html = '';
-                    $.each(files_path, function (key, val) {
-                        html += val + '<br>';
-                    })
-                    $('.ajax-respond').html(html);
-
-
-
-                } else {
-                    console.log('ОШИБКИ ОТВЕТА сервера: ' + respond.error);
-                }
-
-                window.location = '/api/file/result_cifrovizatori'
-                stopLoadingAnimation();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log('ОШИБКИ AJAX запроса: ' + textStatus);
-                stopLoadingAnimation()
-
-                window.location = '/api/file/result_cifrovizatori'
-            }
-        });
-
+        fetch("/api/file/upload/", {
+            "method": "post",
+            "Content-Type": "multipart/form-data;boundary='",
+            "body": form_data
+        })
+        .then(response => response.json())
+        .catch((error) => console.log(error))
+        .finally(() => stopLoadingAnimation())
+        .finally(() => window.location = '/api/file/result_cifrovizatori')
+        .catch(error => console.log(error));
     });
 
     (function ($) {

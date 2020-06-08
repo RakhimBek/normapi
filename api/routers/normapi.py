@@ -23,8 +23,10 @@ def home(request: Request):
     return templates.TemplateResponse('index.html', {'request': request, 'id': 'Hi!'})
 
 
-@norm_api.post('/api/file/upload/')
 class RequestBody(BaseModel):
+    """
+      normalize RequestBody
+    """
     string: str
 
 
