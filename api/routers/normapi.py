@@ -126,7 +126,7 @@ def normalize_1(df) -> pd.DataFrame:
     new_col = new_col.str.replace(r'р-н', ' район ')
     new_col = new_col.str.replace(r'с.|с ', ' село ')
 
-    # ambiguous
+    # дом, деревня
     new_col = new_col.str.replace(r'д\.', ' дом ')
     new_col = new_col.str.replace(r'дер\.', ' деревня ')
 
@@ -136,6 +136,9 @@ def normalize_1(df) -> pd.DataFrame:
 
     new_col = new_col.str.replace(r'каб\.', ' кабинет ')
     new_col = new_col.str.replace(r'корп\.|корп ', ' кабинет ')
+
+    # квартира, квартал
+    new_col = new_col.str.replace(r'кв\.', ' квартира ')
 
     # add new column
     df['new_str'] = new_col
