@@ -42,7 +42,7 @@ def normalize(body: RequestBody):
 
     """
     bad = pd.DataFrame([['1', body.string]], columns=['id', 'address'])
-    result = process_dataframe(bad)['new_str'][0]
+    result = normalize_1(bad)['new_str'][0]
     return {
         "string": result
     }
@@ -93,7 +93,52 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
 
 def process(filename, result_filename) -> None:
     bad = pd.read_csv(filename, sep=';')
-    process_dataframe(bad).to_csv(result_filename, sep=';')
+    normalize_1(bad).to_csv(result_filename, sep=';')
+
+
+def normalize_1(df) -> pd.DataFrame:
+    df['new_str'] = df['address']
+    new_col = df['address']
+
+    # normalize column data
+    new_col = new_col.str.replace('I', '1')
+    new_col = new_col.str.replace('II', '2')
+    new_col = new_col.str.replace('III', '3')
+    new_col = new_col.str.replace('IV', '4')
+    new_col = new_col.str.replace('V', '5')
+    new_col = new_col.str.replace('VI', '6')
+    new_col = new_col.str.replace('VII', '7')
+    new_col = new_col.str.replace('VIII', '8')
+    new_col = new_col.str.replace('IX', '9')
+    new_col = new_col.str.replace('X', '10')
+    new_col = new_col.str.replace('XI', '11')
+    new_col = new_col.str.replace('XII', '12')
+    new_col = new_col.str.replace('XIII', '13')
+
+    new_col = new_col.str.lower()
+    new_col = new_col.str.replace(r'ул\.|ул ', ' улица ')
+    new_col = new_col.str.replace(r'гор\.|г\.|г ', ' город ')
+
+    new_col = new_col.str.replace(r'обл\.', ' область ')
+    new_col = new_col.str.replace(r'обл,', ' область,')
+
+    new_col = new_col.str.replace(r'ш\.', ' шоссе ')
+    new_col = new_col.str.replace(r'р-н', ' район ')
+
+    # ambiguous
+    new_col = new_col.str.replace(r'д\.', ' дом ')
+    new_col = new_col.str.replace(r'дер\.', ' деревня ')
+
+    new_col = new_col.str.replace(r'пос\.', ' поселок ')
+    new_col = new_col.str.replace(r'пом\.', ' помещение ')
+    new_col = new_col.str.replace(r'пер\.', ' переулок ')
+
+    new_col = new_col.str.replace(r'каб\.', ' кабинет ')
+    new_col = new_col.str.replace(r'корп\.|корп ', ' кабинет ')
+
+    # add new column
+    df['new_str'] = new_col
+    return df
 
 
 def process_dataframe(bad) -> pd.DataFrame:
