@@ -136,6 +136,7 @@ def normalize_1(df) -> pd.DataFrame:
 
     new_col = new_col.str.replace(r'каб\.', ' кабинет ')
     new_col = new_col.str.replace(r'корп\.|корп ', ' кабинет ')
+    new_col = new_col.str.replace(r'ком\.|ком ', ' комната ')
 
     # квартира, квартал
     new_col = new_col.str.replace(r'кв\.', ' квартира ')
