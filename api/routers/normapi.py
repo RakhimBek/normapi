@@ -132,7 +132,7 @@ def normalize_1(df) -> pd.DataFrame:
 
     new_col.str.replace(r'[,; /.]дер\.', ' деревня ')
 
-    new_col = new_col.str.replace(r'[,; /.]пос\.|[,; /]поселок|[,; /]п\.', ' поселок ')
+    new_col = new_col.str.replace(r'[,; /.]пос\.|[,; /]поселок|[,; /]п\.|[,; /]п ', ' поселок ')
     new_col = new_col.str.replace(r'[,; /.]пом\.', ' помещение ')
     new_col = new_col.str.replace(r'[,; /.]пер\.', ' переулок ')
     new_col = new_col.str.replace(r'[,; /.]пр-кт\.', ' проспект ')
