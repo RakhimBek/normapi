@@ -65,7 +65,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     print('/api/file/upload/')
 
     save_upload_file(file, Path(file.filename))
-    res = str(uuid.uuid4()) + '.csv'
+    res = str(uuid.uuid4()).replace('-', '').upper() + '.csv'
 
     process(file.filename, res)
     e = int(time.time() - start_time)
