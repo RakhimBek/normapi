@@ -97,6 +97,15 @@ def process(filename, result_filename) -> None:
 
 
 def normalize_1(df) -> pd.DataFrame:
+    """Normalizes administrative units.
+
+        Args:
+            df: DataFrame.
+
+        Returns:
+            DataFrame.
+
+        """
     df['new_str'] = df['address']
     new_col = df['address']
 
@@ -116,40 +125,47 @@ def normalize_1(df) -> pd.DataFrame:
     new_col = new_col.str.replace('XIII', '13')
 
     new_col = new_col.str.lower()
-    new_col = new_col.str.replace(r'[,; /.]ул\.|[,; /]ул ', ' улица ')
+
+    # Г
     new_col = new_col.str.replace(r'[,; /.]гор\.|г\.|[,; /]г ', ' город ')
 
+    # Д дом, деревня
+    new_col = new_col.apply(lambda s: re.sub(r'[,; .]д[. ]+([0-9/]+[а-я]?)[,. ]', r' дом \1 ', s))
+    new_col = new_col.apply(lambda s: re.sub(r'[,; .]д[. ]+([а-яА-Я -]+)', r' деревня \1 ', s))
+    new_col.str.replace(r'[,; /.]дер\.', ' деревня ')
+
+    # К
+    new_col = new_col.str.replace(r'[,; /.]каб\.', ' кабинет ')
+    new_col = new_col.str.replace(r'[,; /.]корп\.|[,; /]корп ', ' кабинет ')
+    new_col = new_col.str.replace(r'[,; /.]ком\.|[,; /]ком ', ' комната ')
+    new_col = new_col.str.replace(r'[,; /.]кв\.', ' квартира ')
+    new_col = new_col.str.replace(r'[,; /.]кв-л.\.', ' квартал ')
+
+    # Н
+    new_col = new_col.str.replace(r'[,; /.]наб\.', ' набережная ')
+
+    # О
     new_col = new_col.str.replace(r'[,; /.]обл\.', ' область ')
     new_col = new_col.str.replace(r'[,; /.]обл,', ' область,')
 
-    new_col = new_col.str.replace(r'[^а-яА-Я]с\.|[^а-яА-Я]ш\.', ' шоссе ')
-    new_col = new_col.str.replace(r'[,; /.]р-н|[,; /]р-он', ' район ')
-    new_col = new_col.str.replace(r'[^а-яА-Я]с\.|[^а-яА-Я]с ', ' село ')
-
-    # дом, деревня
-    new_col = new_col.apply(lambda s: re.sub(r'[,; .]д[. ]+([0-9/]+[а-я]?)[,. ]', r' дом \1 ', s))
-    new_col = new_col.apply(lambda s: re.sub(r'[,; .]д[. ]+([а-яА-Я -]+)', r' деревня \1 ', s))
-
-    new_col.str.replace(r'[,; /.]дер\.', ' деревня ')
-
+    # П
     new_col = new_col.str.replace(r'[,; /.]пос\.|[,; /]поселок|[,; /]п\.|[,; /]п ', ' поселок ')
     new_col = new_col.str.replace(r'[,; /.]пом\.', ' помещение ')
     new_col = new_col.str.replace(r'[,; /.]пер\.', ' переулок ')
     new_col = new_col.str.replace(r'[,; /.]пр-кт\.', ' проспект ')
 
-    new_col = new_col.str.replace(r'[,; /.]каб\.', ' кабинет ')
-    new_col = new_col.str.replace(r'[,; /.]корп\.|[,; /]корп ', ' кабинет ')
-    new_col = new_col.str.replace(r'[,; /.]ком\.|[,; /]ком ', ' комната ')
+    # Р
+    new_col = new_col.str.replace(r'[,; /.]р-н|[,; /]р-он', ' район ')
 
-    # квартира, квартал
-    new_col = new_col.str.replace(r'[,; /.]кв\.', ' квартира ')
-    new_col = new_col.str.replace(r'[,; /.]кв-л.\.', ' квартал ')
-
-    new_col = new_col.str.replace(r'[,; /.]наб\.', ' набережная ')
-
-    # село, строение
+    # С село, строение
     new_col = new_col.str.replace(r'[,; /.]стр\.', ' строение ')
-    new_col = new_col.str.replace(r'[,; /.]с\.', ' село ')
+    new_col = new_col.str.replace(r'[,; /.]с\.|[,; /.]с ', ' село ')
+
+    # У
+    new_col = new_col.str.replace(r'[,; /.]ул\.|[,; /]ул ', ' улица ')
+
+    # Ш
+    new_col = new_col.str.replace(r'[^а-яА-Я]ш\.|[^а-яА-Я]ш ', ' шоссе ')
 
     # add new column
     df['new_str'] = new_col
