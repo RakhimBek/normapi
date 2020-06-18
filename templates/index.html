@@ -122,9 +122,10 @@
             "body": form_data
         })
         .then(response => response.json())
+        .then(data => data.filename)
+        .then(filename => window.location = '/api/file/' + filename)
         .catch((error) => console.log(error))
         .finally(() => stopLoadingAnimation())
-        .finally(() => window.location = '/api/file/result_cifrovizatori')
         .catch(error => console.log(error));
     });
 

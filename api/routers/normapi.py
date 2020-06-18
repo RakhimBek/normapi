@@ -4,10 +4,11 @@
 import re
 import shutil
 import time
-from pathlib import Path
-
 import numpy as np
 import pandas as pd
+import uuid
+
+from pathlib import Path
 from fastapi import Request, APIRouter, File, UploadFile
 from pydantic import BaseModel
 from starlette.responses import FileResponse
@@ -63,7 +64,7 @@ async def create_upload_file(file: UploadFile = File(...)):
     print('/api/file/upload/')
 
     save_upload_file(file, Path(file.filename))
-    res = 'result_cifrovizatori.csv'
+    res = str(uuid.uuid4()) + '.csv'
 
     process(file.filename, res)
     e = int(time.time() - start_time)
@@ -72,15 +73,15 @@ async def create_upload_file(file: UploadFile = File(...)):
     return {'filename': res}
 
 
-@norm_api.get('/api/file/result_cifrovizatori')
-async def get_file():
+@norm_api.get('/api/file/{file_name}')
+async def get_file(file_name: str):
     """Returns a new file
 
     Returns:
         Returns a new file
 
     """
-    return FileResponse('result_cifrovizatori.csv')
+    return FileResponse(file_name)
 
 
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
