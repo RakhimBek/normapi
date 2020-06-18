@@ -7,6 +7,7 @@ import time
 import numpy as np
 import pandas as pd
 import uuid
+import os
 
 from pathlib import Path
 from fastapi import Request, APIRouter, File, UploadFile
@@ -81,7 +82,17 @@ async def get_file(file_name: str):
         Returns a new file
 
     """
-    return FileResponse(file_name)
+
+    old_age = 5 * 60
+    for f in os.listdir('tmp'):
+        if not f == file_name:
+            path = 'tmp/' + f
+            t = os.path.getmtime(path)
+            ct = time.time()
+            if ct - t > old_age:
+                os.remove(path)
+
+    return FileResponse('tmp/' + file_name)
 
 
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
@@ -94,7 +105,7 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
 
 def process(filename, result_filename) -> None:
     bad = pd.read_csv(filename, sep=';')
-    normalize_1(bad).to_csv(result_filename, sep=';')
+    normalize_1(bad).to_csv('tmp/' + result_filename, sep=';')
 
 
 def normalize_1(df) -> pd.DataFrame:
