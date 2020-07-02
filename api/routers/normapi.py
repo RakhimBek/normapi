@@ -64,14 +64,16 @@ async def create_upload_file(file: UploadFile = File(...)):
     start_time = time.time()
     print('/api/file/upload/')
 
-    save_upload_file(file, Path(file.filename))
-    res = str(uuid.uuid4()).replace('-', '').upper() + '.csv'
+    suffix = str(uuid.uuid4()).replace('-', '').upper()
+    good_filepath = suffix + '.csv'
+    bad_filepath = 'tmp/bad.' + suffix + '.csv'
 
-    process(file.filename, res)
+    save_upload_file(file, Path(bad_filepath))
+    process(bad_filepath, good_filepath)
     e = int(time.time() - start_time)
     print('{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60))
     print(e)
-    return {'filename': res}
+    return {'filename': good_filepath}
 
 
 @norm_api.get('/api/file/{file_name}')
@@ -96,6 +98,9 @@ async def get_file(file_name: str):
 
 
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
+    if not os.path.exists('tmp'):
+        os.mkdir('tmp', 0o777)
+
     try:
         with destination.open('wb') as buffer:
             shutil.copyfileobj(upload_file.file, buffer)
