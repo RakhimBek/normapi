@@ -66,7 +66,7 @@ async def create_upload_file(file: UploadFile = File(...)):
 
     suffix = str(uuid.uuid4()).replace('-', '').upper()
     good_filepath = suffix + '.csv'
-    bad_filepath = 'tmp/bad.' + suffix + '.csv'
+    bad_filepath = 'bad.' + suffix + '.csv'
 
     save_upload_file(file, Path(bad_filepath))
     process(bad_filepath, good_filepath)
@@ -86,21 +86,18 @@ async def get_file(file_name: str):
     """
 
     old_age = 5 * 60
-    for f in os.listdir('tmp'):
-        if not f == file_name:
-            path = 'tmp/' + f
+    for f in os.listdir():
+        if f.endswith('.csv') and not f == file_name:
+            path = f
             t = os.path.getmtime(path)
             ct = time.time()
             if ct - t > old_age:
                 os.remove(path)
 
-    return FileResponse('tmp/' + file_name)
+    return FileResponse(file_name)
 
 
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
-    if not os.path.exists('tmp'):
-        os.mkdir('tmp', 0o777)
-
     try:
         with destination.open('wb') as buffer:
             shutil.copyfileobj(upload_file.file, buffer)
@@ -110,7 +107,7 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
 
 def process(filename, result_filename) -> None:
     bad = pd.read_csv(filename, sep=';')
-    normalize_1(bad).to_csv('tmp/' + result_filename, sep=';')
+    normalize_1(bad).to_csv(result_filename, sep=';')
 
 
 def normalize_1(df) -> pd.DataFrame:
