@@ -73,11 +73,26 @@ async def create_upload_file(file: UploadFile = File(...)):
     e = int(time.time() - start_time)
     print('{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60))
     print(e)
-    return {'filename': good_filepath}
+    return {'filename': suffix}
 
 
-@norm_api.get('/api/file/{file_name}')
-async def get_file(file_name: str):
+@norm_api.get('/api/files')
+async def get_file_list():
+    """
+        :returns
+        file list
+    """
+    csv_files = []
+    for f in os.listdir():
+        if f.endswith('.csv'):
+            csv_files.append(f)
+    return {
+        "files": csv_files
+    }
+
+
+@norm_api.get('/api/file/{suffix}')
+async def get_file(suffix: str):
     """Returns a new file
 
     Returns:
@@ -85,6 +100,7 @@ async def get_file(file_name: str):
 
     """
 
+    file_name = suffix + '.csv'
     old_age = 5 * 60
     for f in os.listdir():
         if f.endswith('.csv') and not f == file_name:
