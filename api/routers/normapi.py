@@ -113,6 +113,18 @@ async def get_file(suffix: str):
     return FileResponse(file_name)
 
 
+@norm_api.get('/api/remove/file/{suffix}')
+async def remove_file(suffix: str):
+    try:
+        os.remove(suffix + '.csv')
+        os.remove('bad.' + suffix + '.csv')
+        return {"status": "OK"}
+
+    except Exception as e:
+        print(e)
+        return {"status": "FAILURE"}
+
+
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
     try:
         with destination.open('wb') as buffer:
