@@ -61,19 +61,20 @@ async def create_upload_file(file: UploadFile = File(...)):
         A new file with the original strings and the result of processing.
 
     """
-    start_time = time.time()
     print('/api/file/upload/')
 
-    suffix = str(uuid.uuid4()).replace('-', '').upper()
-    good_filepath = suffix + '.csv'
-    bad_filepath = 'bad.' + suffix + '.csv'
+    try:
+        suffix = str(uuid.uuid4()).replace('-', '').upper()
+        good_filepath = suffix + '.csv'
+        bad_filepath = 'bad.' + suffix + '.csv'
 
-    save_upload_file(file, Path(bad_filepath))
-    process(bad_filepath, good_filepath)
-    e = int(time.time() - start_time)
-    print('{:02d}:{:02d}:{:02d}'.format(e // 3600, (e % 3600 // 60), e % 60))
-    print(e)
-    return {'filename': suffix}
+        save_upload_file(file, Path(bad_filepath))
+        process(bad_filepath, good_filepath)
+        return {'filename': suffix}
+
+    except Exception as e:
+        print(e)
+        return {"status": "bad"}
 
 
 @norm_api.get('/api/files')
