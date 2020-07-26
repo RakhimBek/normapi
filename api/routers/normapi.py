@@ -135,7 +135,7 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
 
 def process(filename, result_filename) -> None:
     bad = pd.read_csv(filename, sep=';')
-    normalize_1(bad).to_csv(result_filename, sep=';')
+    process_dataframe(bad).to_csv(result_filename, sep=';')
 
 
 def normalize_1(df) -> pd.DataFrame:
