@@ -121,6 +121,7 @@
             "Content-Type": "multipart/form-data;boundary='",
             "body": form_data
         })
+        .then(response => console.log(response))
         .then(response => response.json())
         .then(data => data.filename)
         .then(filename => window.location = '/api/file/' + filename)
