@@ -100,17 +100,7 @@ async def get_file(suffix: str):
 
     """
 
-    file_name = suffix + '.csv'
-    old_age = 5 * 60
-    for f in os.listdir():
-        if f.endswith('.csv') and not f == file_name:
-            path = f
-            t = os.path.getmtime(path)
-            ct = time.time()
-            if ct - t > old_age:
-                os.remove(path)
-
-    return FileResponse(file_name)
+    return FileResponse(suffix + '.csv')
 
 
 @norm_api.get('/api/remove/file/{suffix}')
@@ -118,6 +108,24 @@ async def remove_file(suffix: str):
     try:
         os.remove(suffix + '.csv')
         os.remove('bad.' + suffix + '.csv')
+        return {"status": "OK"}
+
+    except Exception as e:
+        print(e)
+        return {"status": "FAILURE"}
+
+
+@norm_api.get('/api/remove/files/')
+async def remove_old_files():
+    try:
+        old_age = 5 * 60
+        ct = time.time()
+        for f in os.listdir():
+            if f.endswith('.csv'):
+                t = os.path.getmtime(f)
+                if ct - t > old_age:
+                    os.remove(f)
+
         return {"status": "OK"}
 
     except Exception as e:
