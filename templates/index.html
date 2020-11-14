@@ -121,13 +121,13 @@
             "Content-Type": "multipart/form-data;boundary='",
             "body": form_data
         })
-        .then(response => console.log(response))
-        .then(response => response.json())
-        .then(data => data.filename)
-        .then(filename => window.location = '/api/file/' + filename)
-        .catch((error) => console.log(error))
-        .finally(() => stopLoadingAnimation())
-        .catch(error => console.log(error));
+            .then(response => console.log(response))
+            .then(response => response.json())
+            .then(data => data.filename)
+            .then(filename => window.location = '/api/file/' + filename)
+            .catch((error) => console.log(error))
+            .finally(() => stopLoadingAnimation())
+            .catch(error => console.log(error));
     });
 
     (function ($) {
@@ -156,43 +156,43 @@
                 "string": $("input:text").val()
             })
         })
-        .then(response => response.json())
-        .then(data => data.string)
-        .then(val => $('.adress-field').val(val))
-        .catch((response) => {
-            // something wrong has happen
-            console.log(response);
-        });
+            .then(response => response.json())
+            .then(data => data.string)
+            .then(val => $('.adress-field').val(val))
+            .catch((response) => {
+                // something wrong has happen
+                console.log(response);
+            });
 
         let adress = $("input:text").val();
         fetch("https://geocode-maps.yandex.ru/1.x/?apikey=594c11a0-3529-4668-87a6-b1383dc993c3&format=json&geocode=" + adress)
-        .then(response => response.json())
-        .then(data => data.response.GeoObjectCollection.featureMember[0].GeoObject.Point)
-        .then(point => point.pos.split(' ').reverse())
-        .then(position => {
-            let geoObject = new ymaps.GeoObject({
-                geometry: {
-                    type: "Point",
-                    coordinates: position
-                }
-            }, {
-                preset: 'islands#blackStretchyIcon'
-            });
-
-            $("#map").empty();
-            ymaps.ready(() => {
-                new ymaps.Map("map", {
-                    center: position,
-                    zoom: 17.5
+            .then(response => response.json())
+            .then(data => data.response.GeoObjectCollection.featureMember[0].GeoObject.Point)
+            .then(point => point.pos.split(' ').reverse())
+            .then(position => {
+                let geoObject = new ymaps.GeoObject({
+                    geometry: {
+                        type: "Point",
+                        coordinates: position
+                    }
                 }, {
-                    searchControlProvider: 'yandex#search'
-                })
-                .geoObjects
-                .add(geoObject);
-            });
-        })
-        .catch(error => console.log(error))
-        .finally(() => stopLoadingAnimation())
+                    preset: 'islands#blackStretchyIcon'
+                });
+
+                $("#map").empty();
+                ymaps.ready(() => {
+                    new ymaps.Map("map", {
+                        center: position,
+                        zoom: 17.5
+                    }, {
+                        searchControlProvider: 'yandex#search'
+                    })
+                        .geoObjects
+                        .add(geoObject);
+                });
+            })
+            .catch(error => console.log(error))
+            .finally(() => stopLoadingAnimation())
     });
 
 
