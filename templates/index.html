@@ -24,6 +24,7 @@
         <ul class="tabs__caption">
             <li class="active">Данные</li>
             <li>Проверка адреса</li>
+            <li>ФИАС</li>
         </ul>
     </header>
 
@@ -88,6 +89,20 @@
         </main>
     </div>
 
+    <div class="tabs__content">
+        <main>
+            <section class="file-upload">
+                <h1 class="title-left">Введите адрес</h1>
+                <form class="upload-form">
+                    <input class="adress-field fias" type="text">
+                    <a href="#" class="fias-search">Поиск</a>
+                </form>
+            </section>
+            <div class="suggestions">
+
+            </div>
+        </main>
+    </div>
 </div>
 
 </body>
@@ -141,9 +156,6 @@
 
         });
     })(jQuery);
-</script>
-
-<script type="text/javascript">
 
     $('.check-link').click(function (event) {
         event.stopPropagation(); // Остановка происходящего
@@ -195,6 +207,32 @@
             .finally(() => stopLoadingAnimation())
     });
 
+    $('.fias-search').click(function (event) {
+        event.stopPropagation(); // Остановка происходящего
+        event.preventDefault();  // Полная остановка происходящего
+
+        console.log('Oook!')
+        let address = $("input.fias").val();
+        console.log('Bookee! ' + address);
+
+        fetch('/api/fias/search/', {
+            "method": "post",
+            "Content-Type": "application/json",
+            "body": JSON.stringify({
+                "string": address
+            })
+        })
+            .then(response => response.json())
+            .then(data => data.string)
+            .then(data => {
+                $('.suggestions p').remove();
+                data.map(row => {
+                    $('.suggestions').append($('<p>' + row.PresentRow + '</p>'));
+                });
+            })
+            .catch(e => console.log(e));
+
+    });
 
 </script>
 </html>

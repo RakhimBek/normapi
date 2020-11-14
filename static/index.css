@@ -167,7 +167,8 @@ h1{
     color: black
 }
 
-.check-link{
+.check-link,
+.fias-search {
     font-family: Open Sans;
     font-weight: 600;
     font-size: 16px;
@@ -186,7 +187,8 @@ h1{
     color: white
 }
 
-.check-link:hover{
+.check-link:hover,
+.fias-search:hover {
     background: #45C67E;
     color: white
 }
@@ -216,4 +218,12 @@ h1{
     margin: 20px auto;
     width: 800px; 
     height: 400px;
+}
+
+.suggestions p {
+    padding: 15px 0;
+    background: ghostwhite;
+    margin: 3px 20px;
+    display: block;
+    font-family: sans-serif;
 }

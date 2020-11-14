@@ -8,12 +8,14 @@ import numpy as np
 import pandas as pd
 import uuid
 import os
+import json
 
 from pathlib import Path
 from fastapi import Request, APIRouter, File, UploadFile
 from pydantic import BaseModel
 from starlette.responses import FileResponse
 from starlette.templating import Jinja2Templates
+import requests
 
 norm_api = APIRouter()
 
@@ -49,6 +51,22 @@ def normalize(body: RequestBody):
         "string": result
     }
 
+
+@norm_api.post("/api/fias/search/")
+def fias(body: RequestBody):
+
+    url = 'https://fias.nalog.ru/Search/Searching?text=' + body.string
+
+    payload = {}
+    headers = {
+        'mode': 'cors'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    return {
+        "string": json.loads(response.text)
+    }
 
 @norm_api.post("/api/file/upload/")
 async def create_upload_file(file: UploadFile = File(...)):
