@@ -152,6 +152,42 @@ async def remove_old_files():
         return {"status": "FAILURE"}
 
 
+class RequestBody(BaseModel):
+    """
+      normalize RequestBody
+    """
+    string: str
+
+
+@norm_api.get('/api/ya/claims/search/active')
+def search():
+
+    auth_key = os.getenv('YA_AUTH_KEY', 'NOT_A_KEY')
+
+    try:
+        url = 'https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/search/active'
+
+        payload = {
+          "limit": 10,
+          "offset": 0
+        }
+
+        headers = {
+            'Authorization': f'Bearer {auth_key}',
+            'Accept-Language': 'ru'
+        }
+
+        response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+
+        return {
+            "string": json.loads(response.text)
+        }
+
+    except Exception as e:
+        print(e)
+        return {"status": "FAILURE"}
+
+
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
     try:
         with destination.open('wb') as buffer:
