@@ -117,9 +117,7 @@
                     <a href="#" class="ya__form__go">Go</a>
                 </form>
             </section>
-            <div class="row-data">
-
-            </div>
+            <pre class="ya__data"></pre>
         </main>
     </div>
 </div>
@@ -199,8 +197,8 @@
         fetch("https://geocode-maps.yandex.ru/1.x/?apikey=594c11a0-3529-4668-87a6-b1383dc993c3&format=json&geocode=" + adress)
             .then(response => response.json())
             .then(data => {
-                console.log(data.response.GeoObjectCollection.featureMember[0]);
-                console.log(data.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos);
+                let pos = data.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos;
+                console.log(pos.split(' ').reverse());
                 console.log(data.response.GeoObjectCollection.featureMember[0].GeoObject.metaDataProperty.GeocoderMetaData.text);
                 return data.response.GeoObjectCollection.featureMember[0].GeoObject.Point
             })
@@ -258,10 +256,32 @@
 
     });
 
-
     $('.ya__form__go').click(function () {
         console.log($('.ya__address__a').val());
         console.log($('.ya__address__b').val());
+
+
+        let adress = $('.ya__address__b').val();
+        fetch("https://geocode-maps.yandex.ru/1.x/?apikey=594c11a0-3529-4668-87a6-b1383dc993c3&format=json&geocode=" + adress)
+            .then(response => response.json())
+            .then(data => {
+                let go = data.response.GeoObjectCollection.featureMember[0].GeoObject;
+
+                fetch('/api/ya/claims/create', {
+                    "method": "post",
+                    "Content-Type": "application/json",
+                    "body": JSON.stringify({
+                        point: go.Point.pos.split(' ').reverse().map(x => parseFloat(x)),
+                        text: go.metaDataProperty.GeocoderMetaData.text
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        $('.ya__data').empty();
+                        $('.ya__data').append(JSON.stringify(data, null, 2));
+                    })
+                    .catch(e => console.log(e));
+            });
     })
 </script>
 </html>

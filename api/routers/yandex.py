@@ -3,6 +3,7 @@ import json
 import uuid
 import requests
 
+from pydantic import BaseModel
 from fastapi import Request, APIRouter, File, UploadFile
 
 ya = APIRouter()
@@ -36,8 +37,13 @@ def search():
         }
 
 
-@ya.get('/api/ya/claims/create')
-def create():
+class CreateRq(BaseModel):
+    point: list
+    text: str
+
+
+@ya.post('/api/ya/claims/create')
+def create(body: CreateRq):
     auth_key = os.getenv('YA_AUTH_KEY', 'NOT_A_KEY')
 
     try:
@@ -100,13 +106,11 @@ def create():
                     "address": {
                         "country": "Россия",
                         "description": "",
-                        "fullname": "Омская область, Оконешниковский район, д. Язово, д. 12",
-                        "shortname": "Омская область, Оконешниковский район, д. Язово, д. 12",
-                        "street": "Карла Маркса",
-                        "building": "д. 12",
-                        "coordinates": [
-                            75.547103, 54.684829
-                        ]
+                        "fullname": body.text,
+                        "shortname": body.text,
+                        "street": body.text,
+                        "building": body.text,
+                        "coordinates": body.point
                     }
                 }
             ]
