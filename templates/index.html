@@ -108,13 +108,16 @@
     <div class="tabs__content">
         <main>
             <section class="file-upload">
-                <form class="upload-form">
-                    <input class="adress-field fias" type="text" placeholder="A">
-                    <input class="adress-field fias" type="text" placeholder="B">
-                    <a href="#" class="fias-search">Go</a>
+                <form class="ya__form">
+                    <input class="adress-field fias ya__address__a"
+                           type="text"
+                           placeholder="г. Томск, Ленинский район, ул. Карла Маркса, 23а​"
+                           value="г. Томск, Ленинский район, ул. Карла Маркса, 23а​">
+                    <input class="adress-field fias ya__address__b fias" type="text" placeholder="Напишите адрес здесь">
+                    <a href="#" class="ya__form__go">Go</a>
                 </form>
             </section>
-            <div class="suggestions">
+            <div class="row-data">
 
             </div>
         </main>
@@ -196,7 +199,9 @@
         fetch("https://geocode-maps.yandex.ru/1.x/?apikey=594c11a0-3529-4668-87a6-b1383dc993c3&format=json&geocode=" + adress)
             .then(response => response.json())
             .then(data => {
-                console.log(data);
+                console.log(data.response.GeoObjectCollection.featureMember[0]);
+                console.log(data.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos);
+                console.log(data.response.GeoObjectCollection.featureMember[0].GeoObject.metaDataProperty.GeocoderMetaData.text);
                 return data.response.GeoObjectCollection.featureMember[0].GeoObject.Point
             })
             .then(point => point.pos.split(' ').reverse())
@@ -253,5 +258,10 @@
 
     });
 
+
+    $('.ya__form__go').click(function () {
+        console.log($('.ya__address__a').val());
+        console.log($('.ya__address__b').val());
+    })
 </script>
 </html>
