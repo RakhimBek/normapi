@@ -134,3 +134,35 @@ def create():
         return {
             "status": "FAILURE"
         }
+
+
+@ya.get('/api/ya/claims/cancel/{cid}')
+def cancel(cid: str):
+    auth_key = os.getenv('YA_AUTH_KEY', 'NOT_A_KEY')
+
+    try:
+        url = 'https://b2b.taxi.yandex.net/b2b/cargo/integration/v1/claims/cancel'
+
+        payload = {
+            "cancel_state": "free",
+            "version": 1
+        }
+
+        headers = {
+            'Authorization': f'Bearer {auth_key}',
+            'Accept-Language': 'ru'
+        }
+
+        params = {
+            'claim_id': cid
+        }
+
+        response = requests.request("POST", url, headers=headers, data=json.dumps(payload), params=params)
+
+        return json.loads(response.text)
+
+    except Exception as e:
+        print(e)
+        return {
+            "status": "FAILURE"
+        }
