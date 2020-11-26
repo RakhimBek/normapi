@@ -168,7 +168,8 @@ h1{
 }
 
 .check-link,
-.fias-search {
+.fias-search,
+.ya__form__go {
     font-family: Open Sans;
     font-weight: 600;
     font-size: 16px;
@@ -188,7 +189,8 @@ h1{
 }
 
 .check-link:hover,
-.fias-search:hover {
+.fias-search:hover,
+.ya__form__go:hover {
     background: #45C67E;
     color: white
 }
@@ -226,4 +228,9 @@ h1{
     margin: 3px 20px;
     display: block;
     font-family: sans-serif;
+}
+
+.ya__form {
+    display: flex;
+    flex-direction: column;
 }
