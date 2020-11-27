@@ -76,8 +76,8 @@ def create(body: CreateRq):
                     "point_id": 1,
                     "visit_order": 1,
                     "contact": {
-                        "name": "Rakhim",
-                        "phone": "+71234561234"
+                        "name": "Иван",
+                        "phone": "+79138886060"
                     },
                     "type": "source",
                     "address": {
@@ -99,8 +99,8 @@ def create(body: CreateRq):
                     "point_id": 2,
                     "visit_order": 2,
                     "contact": {
-                        "name": "Rakhim",
-                        "phone": "+71234561234"
+                        "name": "Иван",
+                        "phone": "+79138886060"
                     },
                     "type": "destination",
                     "address": {
