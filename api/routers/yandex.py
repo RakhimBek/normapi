@@ -131,7 +131,11 @@ def create(body: CreateRq):
             }
         )
 
-        return json.loads(response.text)
+        return {
+            'url': url,
+            'request': json.loads(response.text),
+            'response': payload
+        }
 
     except Exception as e:
         print(e)

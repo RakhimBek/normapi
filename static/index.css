@@ -234,3 +234,8 @@ h1{
     display: flex;
     flex-direction: column;
 }
+
+.ya__address__a {
+    pointer-events: none;
+    background: lightgray;
+}
