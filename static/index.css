@@ -1,26 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
-body{
+body {
     font-family: 'Open Sans', sans-serif;
     margin: 0;
     min-width: 850px;
 }
 
-header{
+header {
     display: block;
     margin: 0 auto;
     width: 800px;
 }
 
-ul{
+ul {
     list-style: none;
     padding: 60px 0 32px 0;
-    
+
 }
 
-li{
-    display: inline-block;    
+li {
+    display: inline-block;
     padding: 10px 16px;
     font-family: Open Sans;
     font-weight: 600;
@@ -28,67 +28,67 @@ li{
     cursor: pointer;
 }
 
-li.active{
+li.active {
     background: #45C67E;
     border-radius: 6px;
     color: #FFFFFF;
 }
 
-.file-upload{
+.file-upload {
 
 
 }
 
-.instructions-wrapper{   
-    
+.instructions-wrapper {
+
     background: #FAFAFA;
 }
 
-.instructions{
+.instructions {
     display: block;
     margin: 0 auto;
     padding: 32px 0;
     width: 800px;
 }
 
-h1{
+h1 {
     text-align: center;
     font-size: 24px;
     font-weight: normal;
     margin: 0 0;
 }
 
-.instructions-list{
+.instructions-list {
     display: flex;
     justify-content: space-around;
     margin: 24px 0 0;
 }
 
-.instructions-item{
+.instructions-item {
 }
 
-.instructions-icon{
+.instructions-icon {
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     line-height: 32px;
     background: #45C67E;
     width: 32px;
     height: 32px;
-    text-align: center;    
+    text-align: center;
     border-radius: 50%;
     color: #FFFFFF;
     margin: 0 auto;
 }
 
-.instructions-description{
+.instructions-description {
     font-family: Open Sans;
-    font-size: 12px;    
+    font-size: 12px;
     text-align: center;
     width: 179px;
     margin-top: 16px;
 }
 
-.file-upload{
+.file-upload {
     padding: 90px 45px;
     background: #FFFFFF;
     border: 1px solid #F0F3F6;
@@ -100,18 +100,18 @@ h1{
     width: 800px;
 }
 
-.title-left{
+.title-left {
     text-align: left;
     margin-top: 0;
     margin-bottom: 14px
 }
 
-.upload-form{
+.upload-form {
     display: flex;
     flex-direction: row;
 }
 
-.upload-field{
+.upload-field {
     border: 1px solid #F0F3F6;
     box-sizing: border-box;
     border-radius: 8px;
@@ -121,11 +121,12 @@ h1{
     padding-left: 15px;
     margin-right: 16px;
 }
-.upload-field:hover{
+
+.upload-field:hover {
     border: 1px solid black;
 }
 
-.adress-field{
+.adress-field {
     border: 1px solid #F0F3F6;
     box-sizing: border-box;
     border-radius: 8px;
@@ -136,11 +137,12 @@ h1{
     font-family: Roboto;
     font-size: 17px;
 }
-.adress-field:hover{
+
+.adress-field:hover {
     border: 1px solid black;
 }
 
-.submit-button{
+.submit-button {
     font-family: Open Sans;
     font-weight: 600;
     font-size: 16px;
@@ -152,8 +154,7 @@ h1{
 }
 
 
-
-.submit-link{
+.submit-link {
     font-family: Open Sans;
     font-weight: 600;
     font-size: 16px;
@@ -169,7 +170,8 @@ h1{
 
 .check-link,
 .fias-search,
-.ya__form__go {
+.ya__form__go,
+.ya__form__search {
     font-family: Open Sans;
     font-weight: 600;
     font-size: 16px;
@@ -183,42 +185,44 @@ h1{
     color: black
 }
 
-.submit-link:hover{
+.submit-link:hover {
     background: #45C67E;
     color: white
 }
 
 .check-link:hover,
 .fias-search:hover,
-.ya__form__go:hover {
+.ya__form__go:hover,
+.ya__form__search:hover {
     background: #45C67E;
     color: white
 }
 
-.file-format-info{
+.file-format-info {
     font-family: Roboto;
     font-size: 12px;
     color: #CBCBCC;
 }
 
-#loadImg{
-    position:relative; 
-    z-index:1000; 
+#loadImg {
+    position: relative;
+    z-index: 1000;
     top: 40px;
     left: 276px;
     opacity: 0%
 }
 
 .tabs__content {
-	display: none; /* по умолчанию прячем все блоки */
-}
-.tabs__content.active {
-	display: block; /* по умолчанию показываем нужный блок */
+    display: none; /* по умолчанию прячем все блоки */
 }
 
-#map{
+.tabs__content.active {
+    display: block; /* по умолчанию показываем нужный блок */
+}
+
+#map {
     margin: 20px auto;
-    width: 800px; 
+    width: 800px;
     height: 400px;
 }
 
@@ -238,4 +242,14 @@ h1{
 .ya__address__a {
     pointer-events: none;
     background: lightgray;
+}
+
+.ya__form input,
+.ya__form a {
+    width: 100%;
+    margin: 1px 0px;
+}
+
+.ya__form a {
+    background: aliceblue;
 }

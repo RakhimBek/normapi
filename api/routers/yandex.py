@@ -28,7 +28,10 @@ def search():
 
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
 
-        return json.loads(response.text)
+        return {
+            'url': url,
+            'response': json.loads(response.text)
+        }
 
     except Exception as e:
         print(e)

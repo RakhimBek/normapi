@@ -114,7 +114,8 @@
                            placeholder="г. Томск, Ленинский район, ул. Карла Маркса, 23а​"
                            value="г. Томск, Ленинский район, ул. Карла Маркса, 23а​">
                     <input class="adress-field fias ya__address__b fias" type="text" placeholder="Напишите адрес здесь">
-                    <a href="#" class="ya__form__go">Go</a>
+                    <a href="#" class="ya__form__search">Список заявок</a>
+                    <a href="#" class="ya__form__go">Создать заявку</a>
                 </form>
             </section>
             <pre class="ya__data"></pre>
@@ -254,6 +255,16 @@
             })
             .catch(e => console.log(e));
 
+    });
+
+    $('.ya__form__search').click(function () {
+
+        fetch('/api/ya/claims/search/active/')
+            .then(response => response.json())
+            .then(data => {
+                $('.ya__data').empty();
+                $('.ya__data').append(JSON.stringify(data, null, 2));
+            })
     });
 
     $('.ya__form__go').click(function () {
