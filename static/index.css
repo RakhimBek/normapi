@@ -171,6 +171,7 @@ h1 {
 .check-link,
 .fias-search,
 .ya__form__go,
+.ya__form__cancel,
 .ya__form__search {
     font-family: Open Sans;
     font-weight: 600;
@@ -193,6 +194,7 @@ h1 {
 .check-link:hover,
 .fias-search:hover,
 .ya__form__go:hover,
+.ya__form__cancel:hover,
 .ya__form__search:hover {
     background: #45C67E;
     color: white

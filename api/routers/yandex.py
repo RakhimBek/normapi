@@ -28,6 +28,9 @@ def search():
 
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
 
+        claims = json.loads(response.text)['claims'];
+        print(list(map(lambda claim: {'id': claim['id'], 'version': claim['revision']}, claims)))
+
         return {
             'url': url,
             'response': json.loads(response.text)
@@ -147,16 +150,42 @@ def create(body: CreateRq):
         }
 
 
-@ya.get('/api/ya/claims/cancel/{cid}')
-def cancel(cid: str):
+def cancel_request(cid, version):
+    auth_key = os.getenv('YA_AUTH_KEY', 'NOT_A_KEY')
+    url = 'https://b2b.taxi.yandex.net/b2b/cargo/integration/v1/claims/cancel'
+
+    payload = {
+        "cancel_state": "free",
+        "version": version
+    }
+
+    headers = {
+        'Authorization': f'Bearer {auth_key}',
+        'Accept-Language': 'ru'
+    }
+
+    params = {
+        'claim_id': cid
+    }
+
+    return {
+        'request': payload,
+        'response': json.loads(
+            requests.request("POST", url, headers=headers, data=json.dumps(payload), params=params).text),
+    }
+
+
+@ya.get('/api/ya/claims/cancel')
+def cancel_all():
     auth_key = os.getenv('YA_AUTH_KEY', 'NOT_A_KEY')
 
     try:
-        url = 'https://b2b.taxi.yandex.net/b2b/cargo/integration/v1/claims/cancel'
+
+        url = 'https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/search/active'
 
         payload = {
-            "cancel_state": "free",
-            "version": 1
+            "limit": 10,
+            "offset": 0
         }
 
         headers = {
@@ -164,13 +193,15 @@ def cancel(cid: str):
             'Accept-Language': 'ru'
         }
 
-        params = {
-            'claim_id': cid
+        response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+
+        claims = json.loads(response.text)['claims']
+
+        responses = list(map(lambda claim: cancel_request(claim['id'], claim['revision']), claims))
+
+        return {
+            'responses': responses
         }
-
-        response = requests.request("POST", url, headers=headers, data=json.dumps(payload), params=params)
-
-        return json.loads(response.text)
 
     except Exception as e:
         print(e)
