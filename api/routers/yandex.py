@@ -210,14 +210,40 @@ def cancel_all():
         }
 
 
-@ya.get('/api/ya/claims/accept/{cid}')
-def accept(cid: str):
+def accept_request(cid):
+    auth_key = os.getenv('YA_AUTH_KEY', 'NOT_A_KEY')
+    url = 'b2b.taxi.yandex.net/b2b/cargo/integration/v1/claims/accept'
+    payload = {
+        "version": 1
+    }
+
+    headers = {
+        'Authorization': f'Bearer {auth_key}',
+        'Accept-Language': 'ru'
+    }
+
+    params = {
+        'claim_id': cid
+    }
+
+    response = requests.request("POST", url, headers=headers, data=json.dumps(payload), params=params)
+
+    return {
+        'request': payload,
+        'response': json.loads(response.text)
+    }
+
+
+@ya.get('/api/ya/claims/accept/')
+def accept_all():
     auth_key = os.getenv('YA_AUTH_KEY', 'NOT_A_KEY')
 
     try:
-        url = 'b2b.taxi.yandex.net/b2b/cargo/integration/v1/claims/accept'
+        url = 'https://b2b.taxi.yandex.net/b2b/cargo/integration/v2/claims/search/active'
+
         payload = {
-            "version": 1
+            "limit": 10,
+            "offset": 0
         }
 
         headers = {
@@ -225,13 +251,15 @@ def accept(cid: str):
             'Accept-Language': 'ru'
         }
 
-        params = {
-            'claim_id': cid
+        response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
+
+        claims = json.loads(response.text)['claims']
+
+        responses = list(map(lambda claim: accept_request(claim['id']), claims))
+
+        return {
+            'responses': responses
         }
-
-        response = requests.request("POST", url, headers=headers, data=json.dumps(payload), params=params)
-
-        return json.loads(response.text)
 
     except Exception as e:
         print(e)
