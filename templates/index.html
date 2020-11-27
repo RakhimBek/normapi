@@ -116,6 +116,7 @@
                     <input class="adress-field fias ya__address__b fias" type="text" placeholder="Напишите адрес здесь">
                     <a href="#" class="ya__form__search">Список заявок</a>
                     <a href="#" class="ya__form__cancel">Отменить все заявки</a>
+                    <a href="#" class="ya__form__accept">Подтвердить все заявки</a>
                     <a href="#" class="ya__form__go">Создать заявку</a>
                 </form>
             </section>
@@ -259,6 +260,7 @@
     });
 
     $('.ya__form__search').click(function () {
+        console.log('search');
 
         fetch('/api/ya/claims/search/active/')
             .then(response => response.json())
@@ -269,6 +271,7 @@
     });
 
     $('.ya__form__cancel').click(function () {
+        console.log('cancel');
 
         fetch('/api/ya/claims/cancel/')
             .then(response => response.json())
@@ -278,7 +281,20 @@
             })
     });
 
+    $('.ya__form__accept').click(function () {
+        console.log('accept');
+
+        fetch('/api/ya/claims/accept/')
+            .then(response => response.json())
+            .then(data => {
+                $('.ya__data').empty();
+                $('.ya__data').append(JSON.stringify(data, null, 2));
+            })
+    });
+
     $('.ya__form__go').click(function () {
+        console.log('create');
+
         console.log($('.ya__address__a').val());
         console.log($('.ya__address__b').val());
 
