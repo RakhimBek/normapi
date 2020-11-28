@@ -304,13 +304,15 @@
             .then(response => response.json())
             .then(data => {
                 let go = data.response.GeoObjectCollection.featureMember[0].GeoObject;
+                let text = go.metaDataProperty.GeocoderMetaData.text;
+                $('.ya__address__b').val(text);
 
                 fetch('/api/ya/claims/create', {
                     "method": "post",
                     "Content-Type": "application/json",
                     "body": JSON.stringify({
                         point: go.Point.pos.split(' ').reverse().map(x => parseFloat(x)),
-                        text: go.metaDataProperty.GeocoderMetaData.text
+                        text: text
                     })
                 })
                     .then(response => response.json())
