@@ -3,10 +3,12 @@ import shutil
 import json
 import uuid
 import requests
+import pandas as pd
 
 from pathlib import Path
 from pydantic import BaseModel
 from fastapi import Request, APIRouter, File, UploadFile
+from starlette.responses import FileResponse
 
 normalizer = APIRouter()
 
@@ -37,8 +39,30 @@ async def create_upload_file(file: UploadFile = File(...)):
         good_filepath = suffix + '.csv'
         save_upload_file(file, Path(good_filepath))
 
-        return {'filename': suffix}
+        data = pd.read_csv(good_filepath, delimiter=';', header=None)
+
+        values = list(map(lambda x: search_in_fias(x[0]), data.loc[:, [0]].values))
+        pd.DataFrame(data=values).to_csv('res' + suffix + '.csv', sep=';', index=False, header=False)
+
+        return FileResponse('res' + suffix + '.csv')
 
     except Exception as e:
         print(e)
-        return {"status": "bad"}
+        # return {"status": "bad"}
+        return FileResponse('res' + suffix + '.csv')
+
+
+def search_in_fias(text):
+    url = 'https://fias.nalog.ru/Search/Searching?text=' + text
+
+    payload = {}
+    headers = {
+        'mode': 'cors'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    try:
+        return json.loads(response.text)[0]['PresentRow']
+    except Exception as e:
+        return 'No data found.'
