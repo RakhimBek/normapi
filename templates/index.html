@@ -237,7 +237,7 @@
         event.preventDefault();  // Полная остановка происходящего
 
         console.log('Oook!')
-        let address = $("input.fias").val();
+        let address = encodeURIComponent($("input.fias").val());
         console.log('Bookee! ' + address);
 
         fetch('/api/fias/search/', {
