@@ -1,13 +1,11 @@
-import os
 import shutil
 import json
 import uuid
 import requests
-import pandas as pd
+import subprocess
 
 from pathlib import Path
-from pydantic import BaseModel
-from fastapi import Request, APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile
 from starlette.responses import FileResponse
 
 normalizer = APIRouter()
@@ -39,17 +37,22 @@ async def create_upload_file(file: UploadFile = File(...)):
         good_filepath = suffix + '.csv'
         save_upload_file(file, Path(good_filepath))
 
-        data = pd.read_csv(good_filepath, delimiter=';', header=None)
+        # subprocess.call(
+        #    f'onmt_translate -gpu 1  -batch_size 10  -beam_size 20   -model models/gorod/model.pt  \
+        #    -src {good_filepath}   -output gorod{good_filepath}.csv  -min_length  0  \
+        #    -stepwise_penalty    -coverage_penalty summary  -beta 5    -length_penalty wu  -alpha 0.9  \
+        #    -block_ngram_repeat 0   -ignore_when_blocking "." "<t>" "</t>"',
+        #    shell=True
+        # )
 
-        values = list(map(lambda x: search_in_fias(x[0]), data.loc[:, [0]].values))
-        pd.DataFrame(data=values).to_csv('res' + suffix + '.csv', sep=';', index=False, header=False)
+        subprocess.call(f'head -c 5 {good_filepath} > gorod{good_filepath}', shell=True)
 
-        return FileResponse('res' + suffix + '.csv')
+        return FileResponse(f'gorod{good_filepath}')
 
     except Exception as e:
         print(e)
         # return {"status": "bad"}
-        return FileResponse('res' + suffix + '.csv')
+        return FileResponse(f'gorod{good_filepath}')
 
 
 def search_in_fias(text):
