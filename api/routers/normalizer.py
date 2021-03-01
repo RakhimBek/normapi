@@ -2,6 +2,7 @@ import shutil
 import json
 import uuid
 import requests
+import pandas as pd
 import subprocess
 
 from pathlib import Path
@@ -44,10 +45,15 @@ async def create_upload_file(file: UploadFile = File(...)):
         #    -block_ngram_repeat 0   -ignore_when_blocking "." "<t>" "</t>"',
         #    shell=True
         # )
+        # subprocess.call(f'head -c 5 {good_filepath} > gorod{good_filepath}', shell=True)
 
-        subprocess.call(f'head -c 5 {good_filepath} > gorod{good_filepath}', shell=True)
+        data = pd.read_csv(good_filepath, delimiter=';', header=None)
 
-        return FileResponse(f'gorod{good_filepath}')
+        values = list(map(lambda x: search_in_fias(x[0]), data.loc[:, [0]].values))
+        pd.DataFrame(data=values).to_csv('res' + suffix + '.csv', sep=';', index=False, header=False)
+
+        return FileResponse('res' + suffix + '.csv')
+        # return FileResponse(f'gorod{good_filepath}')
 
     except Exception as e:
         print(e)
