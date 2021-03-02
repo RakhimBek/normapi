@@ -1,9 +1,11 @@
 import shutil
 import json
 import uuid
+import os
 import requests
 import pandas as pd
 import subprocess
+import time
 
 from pathlib import Path
 from fastapi import APIRouter, File, UploadFile
@@ -18,6 +20,29 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
             shutil.copyfileobj(upload_file.file, buffer)
     finally:
         upload_file.file.close()
+
+
+def call(model_name, name):
+    subprocess.run(
+        f'onmt_translate -batch_size 10 -beam_size 20 -model ../models/{model_name}/model.pt \
+           -src {name} -output {model_name}{name} -min_length 0 \
+           -stepwise_penalty -coverage_penalty summary -beta 5 -length_penalty wu -alpha 0.9  \
+           -block_ngram_repeat 0 -ignore_when_blocking "." "<t>" "</t>"',
+        shell=True
+    )
+    print(f'call {model_name}')
+
+
+def wait_for_files(good_filepath):
+    while not os.path.exists(f'gorod{good_filepath}'):
+        time.sleep(1)
+
+    while not os.path.exists(f'rayon{good_filepath}'):
+        time.sleep(1)
+
+    while not os.path.exists(f'street{good_filepath}'):
+        time.sleep(1)
+    print('wait_for_files')
 
 
 @normalizer.post("/api/normalizer/file/")
@@ -38,27 +63,29 @@ async def create_upload_file(file: UploadFile = File(...)):
         good_filepath = suffix + '.csv'
         save_upload_file(file, Path(good_filepath))
 
-        # subprocess.call(
-        #    f'onmt_translate -gpu 1  -batch_size 10  -beam_size 20   -model models/gorod/model.pt  \
-        #    -src {good_filepath}   -output gorod{good_filepath}.csv  -min_length  0  \
-        #    -stepwise_penalty    -coverage_penalty summary  -beta 5    -length_penalty wu  -alpha 0.9  \
-        #    -block_ngram_repeat 0   -ignore_when_blocking "." "<t>" "</t>"',
-        #    shell=True
-        # )
-        # subprocess.call(f'head -c 5 {good_filepath} > gorod{good_filepath}', shell=True)
+        call('gorod', good_filepath)
+        call('rayon', good_filepath)
+        call('street', good_filepath)
 
-        data = pd.read_csv(good_filepath, delimiter=';', header=None)
+        wait_for_files(good_filepath)
 
-        values = list(map(lambda x: search_in_fias(x[0]), data.loc[:, [0]].values))
-        pd.DataFrame(data=values).to_csv('res' + suffix + '.csv', sep=';', index=False, header=False)
+        subprocess.run(
+            f'paste gorod{good_filepath} rayon{good_filepath} street{good_filepath} \
+             | sed "s/[a-z<>/]//g" > res{good_filepath}',
+            shell=True
+        )
 
-        return FileResponse('res' + suffix + '.csv')
+        # data = pd.read_csv(good_filepath, delimiter=';', header=None)
+        # values = list(map(lambda x: search_in_fias(x[0]), data.loc[:, [0]].values))
+        # pd.DataFrame(data=values).to_csv('res' + suffix + '.csv', sep=';', index=False, header=False)
+
+        return FileResponse('res' + good_filepath)
         # return FileResponse(f'gorod{good_filepath}')
 
     except Exception as e:
         print(e)
         # return {"status": "bad"}
-        return FileResponse(f'gorod{good_filepath}')
+        return None
 
 
 def search_in_fias(text):
