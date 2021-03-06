@@ -8,7 +8,8 @@ from pathlib import Path
 
 import requests
 from fastapi import APIRouter, File, UploadFile
-from starlette.responses import FileResponse
+from fastapi.responses import FileResponse
+from pydantic import BaseModel
 
 normalizer = APIRouter()
 
@@ -42,6 +43,28 @@ def wait_for_files(good_filepath):
 	while not os.path.exists(f'street{good_filepath}'):
 		time.sleep(1)
 	print('wait_for_files')
+
+
+class RequestBody(BaseModel):
+	"""
+	  normalize RequestBody
+	"""
+	string: str
+
+
+@normalizer.post("/api/normalizer/single")
+def normalize(body: RequestBody):
+	"""
+	Normalizes the string set by the user.
+
+	Args:
+		body: User string.
+
+	Returns:
+		Processed user string.
+
+	"""
+	return body
 
 
 @normalizer.post("/api/normalizer/file/")
