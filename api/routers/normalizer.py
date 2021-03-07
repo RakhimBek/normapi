@@ -102,12 +102,16 @@ def normalize(body: RequestBody):
 							 + ("ул." + street if street else "")
 
 					fias_result = search_in_fias(string)
+					result = {
+						'fias': fias_result,
+						'city': city,
+						'area': area,
+						'street': street
+					}
 
 					logging.info(f'S:{body.string};{city};{area};{street};{string};{fias_result}')
 
-	return {
-		'string': fias_result
-	}
+	return result
 
 
 @normalizer.post("/api/normalizer/file/")
