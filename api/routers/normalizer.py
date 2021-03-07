@@ -1,5 +1,7 @@
 import json
+import logging
 import os
+import re
 import shutil
 import subprocess
 import time
@@ -12,6 +14,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 normalizer = APIRouter()
+logging.basicConfig(filename='normalizer.log', level=logging.INFO)
 
 
 def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
@@ -64,7 +67,47 @@ def normalize(body: RequestBody):
 		Processed user string.
 
 	"""
-	return body
+
+	suffix = str(uuid.uuid4()).replace('-', '').upper()
+	with open(suffix, 'w') as f:
+		f.write(body.string)
+
+	call('gorod', suffix)
+	call('rayon', suffix)
+	call('street', suffix)
+
+	wait_for_files(suffix)
+
+	with open(f'gorod{suffix}', 'r') as gf:
+		with open(f'rayon{suffix}', 'r') as rf:
+			with open(f'street{suffix}', 'r') as sf:
+				while True:
+					city = gf.readline()
+					area = rf.readline()
+					street = sf.readline()
+					if city == '' and area == '' and street == '':
+						break
+
+					city = re.sub(r'[t<>\n/]', '', city)
+					city = re.sub(r'[\t ]+', ' ', city).strip().upper()
+
+					area = re.sub(r'[t<>\n/]', '', area)
+					area = re.sub(r'[\t ]+', ' ', area).strip().upper()
+
+					street = re.sub(r'[t<>\n/]', '', street)
+					street = re.sub(r'[\t ]+', ' ', street).strip().upper()
+
+					string = ("г. " + city + ", " if city else "") \
+							 + ((area + ' район, ') if area else "") \
+							 + ("ул." + street if street else "")
+
+					fias_result = search_in_fias(string)
+
+					logging.info(f'S:{body.string};{city};{area};{street};{string};{fias_result}')
+
+	return {
+		'string': fias_result
+	}
 
 
 @normalizer.post("/api/normalizer/file/")
@@ -82,27 +125,43 @@ async def create_upload_file(file: UploadFile = File(...)):
 
 	try:
 		suffix = str(uuid.uuid4()).replace('-', '').upper()
-		good_filepath = suffix + '.csv'
-		save_upload_file(file, Path(good_filepath))
+		save_upload_file(file, Path(suffix))
 
-		call('gorod', good_filepath)
-		call('rayon', good_filepath)
-		call('street', good_filepath)
+		call('gorod', suffix)
+		call('rayon', suffix)
+		call('street', suffix)
 
-		wait_for_files(good_filepath)
+		wait_for_files(suffix)
 
-		subprocess.run(
-			f'paste gorod{good_filepath} rayon{good_filepath} street{good_filepath} \
-             | sed "s/[a-z<>/]//g" > res{good_filepath}',
-			shell=True
-		)
+		with open(f'res{suffix}', 'w') as res:
+			with open(f'gorod{suffix}', 'r') as gf:
+				with open(f'rayon{suffix}', 'r') as rf:
+					with open(f'street{suffix}', 'r') as sf:
+						while True:
+							city = gf.readline()
+							area = rf.readline()
+							street = sf.readline()
+							if city == '' and area == '' and street == '':
+								break
 
-		# data = pd.read_csv(good_filepath, delimiter=';', header=None)
-		# values = list(map(lambda x: search_in_fias(x[0]), data.loc[:, [0]].values))
-		# pd.DataFrame(data=values).to_csv('res' + suffix + '.csv', sep=';', index=False, header=False)
+							city = re.sub(r'[t<>\n/]', '', city)
+							city = re.sub(r'[\t ]+', ' ', city).strip().upper()
 
-		return FileResponse('res' + good_filepath)
-	# return FileResponse(f'gorod{good_filepath}')
+							area = re.sub(r'[t<>\n/]', '', area)
+							area = re.sub(r'[\t ]+', ' ', area).strip().upper()
+
+							street = re.sub(r'[t<>\n/]', '', street)
+							street = re.sub(r'[\t ]+', ' ', street).strip().upper()
+							string = ("г. " + city + ", " if city else "") \
+									 + (area + " район, " if area else "") \
+									 + ("ул." + street if street else "")
+
+							fias_result = search_in_fias(string)
+							res.write(fias_result + '\n')
+
+							logging.info(f'M:{suffix};{city};{area};{street};{string};{fias_result}')
+
+		return FileResponse('res' + suffix)
 
 	except Exception as e:
 		print(e)
