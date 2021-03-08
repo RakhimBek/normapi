@@ -8,6 +8,7 @@ import time
 import uuid
 from pathlib import Path
 
+import fastapi
 import requests
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import FileResponse
@@ -58,14 +59,34 @@ class RequestBody(BaseModel):
 @normalizer.post("/api/normalizer/single")
 def normalize(body: RequestBody):
 	"""
-	Normalizes the string set by the user.
+		Нормализация и стандартизация строки с адресом.
+		Запрос и ответ в формате JSON.
 
-	Args:
-		body: User string.
+		запрос:
+			{
+				"string": <исходная строка>
+			}
 
-	Returns:
-		Processed user string.
+		ответ:
+		200:
+			{
+				"source": <исходная строка, либо "No data found">,
+				"result": <найденный в ФИАС адрес, либо No data found.>,
+				"city": <город, если он был найден в адресе>,
+				"area": <район, если он был найден в адресе>,
+				"street": <улица, если она была найдена в адресе>
+			}
 
+		422: ошибка а запросе
+			{
+				"detail": <информация об ошибках в теле запроса>
+			}
+
+		500:
+			{
+    			"detail": "Internal Server Error"
+			}
+	--
 	"""
 
 	suffix = str(uuid.uuid4()).replace('-', '').upper()
@@ -78,51 +99,59 @@ def normalize(body: RequestBody):
 
 	wait_for_files(suffix)
 
-	with open(f'gorod{suffix}', 'r') as gf:
-		with open(f'rayon{suffix}', 'r') as rf:
-			with open(f'street{suffix}', 'r') as sf:
-				while True:
-					city = gf.readline()
-					area = rf.readline()
-					street = sf.readline()
-					if city == '' and area == '' and street == '':
-						break
+	try:
+		with open(f'gorod{suffix}', 'r') as gf:
+			with open(f'rayon{suffix}', 'r') as rf:
+				with open(f'street{suffix}', 'r') as sf:
+					while True:
+						city = gf.readline()
+						area = rf.readline()
+						street = sf.readline()
+						if city == '' and area == '' and street == '':
+							break
 
-					city = re.sub(r'[t<>\n/]', '', city)
-					city = re.sub(r'[\t ]+', ' ', city).strip().upper()
+						city = re.sub(r'[t<>\n/]', '', city)
+						city = re.sub(r'[\t ]+', ' ', city).strip().upper()
 
-					area = re.sub(r'[t<>\n/]', '', area)
-					area = re.sub(r'[\t ]+', ' ', area).strip().upper()
+						area = re.sub(r'[t<>\n/]', '', area)
+						area = re.sub(r'[\t ]+', ' ', area).strip().upper()
 
-					street = re.sub(r'[t<>\n/]', '', street)
-					street = re.sub(r'[\t ]+', ' ', street).strip().upper()
+						street = re.sub(r'[t<>\n/]', '', street)
+						street = re.sub(r'[\t ]+', ' ', street).strip().upper()
 
-					string = ("г. " + city + ", " if city else "") \
-							 + ((area + ' район, ') if area else "") \
-							 + ("ул." + street if street else "")
+						string = ("г. " + city + ", " if city else "") \
+								 + ((area + ' район, ') if area else "") \
+								 + ("ул." + street if street else "")
 
-					fias_result = search_in_fias(string)
-					result = {
-						'fias': fias_result,
-						'city': city,
-						'area': area,
-						'street': street
-					}
+						fias_result = search_in_fias(string)
+						result = {
+							'source': body.string,
+							'result': fias_result,
+							'city': city,
+							'area': area,
+							'street': street
+						}
 
-					logging.info(f'S:{body.string};{city};{area};{street};{string};{fias_result}')
+						body = ''
+						logging.info(f'S:{body.string};{city};{area};{street};{string};{fias_result}')
 
-	return result
+		return result
+	except:
 
+		raise fastapi.HTTPException(status_code=500, detail="Internal Server Error")
 
 @normalizer.post("/api/normalizer/file/")
 async def create_upload_file(file: UploadFile = File(...)):
 	"""Loads the passed file and performs processing.
 
-	Args:
-		file: A csv file that has an 'address' field that contains data that needs to be preprocessed.
+	запрос:
+		file:  Файл в формате CSV содержащии единственный столбец каждая строка
+		которого - нормализуемый адрес
 
-	Returns:
-		A new file with the original strings and the result of processing.
+	ответ:
+		Файл в формате .CSV нормализованных строк
+
+		Нормализованная строка - строка упорядоченных сегментов адреса: <город>, <район>, <улица>
 
 	"""
 	print('/api/file/upload/')
@@ -167,7 +196,7 @@ async def create_upload_file(file: UploadFile = File(...)):
 
 		return FileResponse('res' + suffix)
 
-	except Exception as e:
+	except BaseException as e:
 		print(e)
 		# return {"status": "bad"}
 		return None
