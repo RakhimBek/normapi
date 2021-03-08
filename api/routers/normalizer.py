@@ -28,7 +28,7 @@ def save_upload_file(upload_file: UploadFile, destination: Path) -> None:
 
 def call(model_name, name):
 	subprocess.run(
-		f'onmt_translate -batch_size 10 -beam_size 20 -model ../models/{model_name}/model.pt \
+		f'./venv/bin/onmt_translate -batch_size 10 -beam_size 20 -model ../models/{model_name}/model.pt \
            -src {name} -output {model_name}{name} -min_length 0 \
            -stepwise_penalty -coverage_penalty summary -beta 5 -length_penalty wu -alpha 0.9  \
            -block_ngram_repeat 0 -ignore_when_blocking "." "<t>" "</t>"',
