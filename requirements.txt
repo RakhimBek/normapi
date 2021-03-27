@@ -26,6 +26,7 @@ immutables==0.15
 itsdangerous==1.1.0
 Jinja2==2.11.3
 joblib==1.0.1
+jproperties==2.1.0
 Keras-Preprocessing==1.1.2
 Markdown==3.3.4
 MarkupSafe==1.1.1
