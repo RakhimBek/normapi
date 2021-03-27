@@ -1,11 +1,13 @@
-import uvicorn
-from fastapi import FastAPI, File, UploadFile
-from starlette.staticfiles import StaticFiles
-from starlette.middleware.cors import CORSMiddleware
-from api.api import router as api_router
-
-from settings import HOST, PORT, PROJECT_NAME, DEBUG, API_VERSION, API_PREFIX, OAS_FILENAME
+import contextvars
 from pathlib import Path
+
+import uvicorn
+from fastapi import FastAPI
+from starlette.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles
+
+from api.api import router as api_router
+from settings import API_PREFIX, API_VERSION, DEBUG, HOST, OAS_FILENAME, PORT, PROJECT_NAME
 
 app = FastAPI(
     title=PROJECT_NAME,
@@ -32,4 +34,10 @@ app.add_middleware(
 app.include_router(api_router)
 
 if __name__ == '__main__':
-    uvicorn.run(app, host=HOST, port=PORT)
+	with open('environment.properties', 'r') as f:
+		lines = f.readlines()
+		for line in lines:
+			key, value = line.strip().split('=')
+			contextvars.ContextVar(key).set(value)
+
+	uvicorn.run(app, host=HOST, port=PORT)
