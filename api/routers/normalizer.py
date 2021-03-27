@@ -14,6 +14,8 @@ from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
+import api.routers.postgre_utils
+
 normalizer = APIRouter()
 logging.basicConfig(filename='normalizer.log', level=logging.INFO)
 
@@ -216,3 +218,17 @@ def search_in_fias(text):
 		return json.loads(response.text)[0]['PresentRow']
 	except Exception as e:
 		return 'No data found.'
+
+
+@normalizer.get("/api/normalizer/city/count")
+def select_cities():
+
+	with api.routers.postgre_utils.get_connection() as con:
+		with con.cursor() as cur:
+			cur.execute("select count(distinct formalname) from address where shortname like 'г' or shortname like 'г.'")
+			rows_count = cur.fetchone()
+
+	return {
+		'city_count': rows_count
+	}
+

@@ -1,4 +1,3 @@
-import contextvars
 from pathlib import Path
 
 import uvicorn
@@ -34,10 +33,4 @@ app.add_middleware(
 app.include_router(api_router)
 
 if __name__ == '__main__':
-	with open('environment.properties', 'r') as f:
-		lines = f.readlines()
-		for line in lines:
-			key, value = line.strip().split('=')
-			contextvars.ContextVar(key).set(value)
-
 	uvicorn.run(app, host=HOST, port=PORT)

@@ -1,6 +1,6 @@
-import contextvars
-
 import psycopg2
+
+from jproperties import Properties
 
 
 def get_single_result(statement):
@@ -11,16 +11,14 @@ def get_single_result(statement):
 
 
 def get_connection():
-	host = contextvars.ContextVar('HOST').get()
-	port = contextvars.ContextVar('PORT').get()
-	database = contextvars.ContextVar('DATABASE').get()
-	user = contextvars.ContextVar('USER').get()
-	password = contextvars.ContextVar('PASSWORD').get()
+	properties = Properties()
+	with open("environment.properties", "rb") as f:
+		properties.load(f, "utf-8")
 
 	return psycopg2.connect(
-		host=host,
-		port=port,
-		database=database,
-		user=user,
-		password=password,
+		host=properties.get('HOST').data,
+		port=int(properties.get('PORT').data),
+		database=properties.get('DATABASE').data,
+		user=properties.get('USER').data,
+		password=properties.get('PASSWORD').data
 	)
